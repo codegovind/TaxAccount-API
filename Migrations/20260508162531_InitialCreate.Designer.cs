@@ -12,7 +12,7 @@ using TaxAccount.Data;
 namespace TaxAccount.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260430111752_InitialCreate")]
+    [Migration("20260508162531_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -277,84 +277,84 @@ namespace TaxAccount.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7831),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5164),
                             Description = "View products",
                             Name = "products.view"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7840),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5169),
                             Description = "Create products",
                             Name = "products.create"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7845),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5173),
                             Description = "Edit products",
                             Name = "products.edit"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7849),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5177),
                             Description = "Delete products",
                             Name = "products.delete"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7853),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5182),
                             Description = "View invoices",
                             Name = "invoices.view"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7857),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5186),
                             Description = "Create invoices",
                             Name = "invoices.create"
                         },
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7861),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5189),
                             Description = "Approve invoices",
                             Name = "invoices.approve"
                         },
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7865),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5193),
                             Description = "View reports",
                             Name = "reports.view"
                         },
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7869),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5197),
                             Description = "Manage users",
                             Name = "users.manage"
                         },
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7873),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5201),
                             Description = "Manage accounts",
                             Name = "accounts.manage"
                         },
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7877),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5205),
                             Description = "Manage contacts",
                             Name = "contacts.manage"
                         },
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(8150),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5209),
                             Description = "Manage stock adjustments",
                             Name = "stock.manage"
                         });
@@ -424,6 +424,163 @@ namespace TaxAccount.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("TaxAccount.Models.PurchaseOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ExpectedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("PurchaseOrders");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.PurchaseOrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CgstAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CgstPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("HsnCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("IgstAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("IgstPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PurchaseOrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SgstAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SgstPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("PurchaseOrderId");
+
+                    b.ToTable("PurchaseOrderItems");
+                });
+
             modelBuilder.Entity("TaxAccount.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -451,28 +608,28 @@ namespace TaxAccount.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7073),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4492),
                             Description = "Full access to everything",
                             Name = "Owner"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7083),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4497),
                             Description = "Manage operations",
                             Name = "Manager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7088),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4503),
                             Description = "Day to day operations",
                             Name = "Staff"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7093),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4507),
                             Description = "View only access",
                             Name = "Auditor"
                         });
@@ -876,6 +1033,51 @@ namespace TaxAccount.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("TaxAccount.Models.PurchaseOrder", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TaxAccount.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaxAccount.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.PurchaseOrderItem", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaxAccount.Models.PurchaseOrder", "PurchaseOrder")
+                        .WithMany("Items")
+                        .HasForeignKey("PurchaseOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("PurchaseOrder");
+                });
+
             modelBuilder.Entity("TaxAccount.Models.RolePermission", b =>
                 {
                     b.HasOne("TaxAccount.Models.Permission", "Permission")
@@ -975,6 +1177,11 @@ namespace TaxAccount.Migrations
             modelBuilder.Entity("TaxAccount.Models.Product", b =>
                 {
                     b.Navigation("StockAdjustments");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.PurchaseOrder", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("TaxAccount.Models.Role", b =>

@@ -229,6 +229,50 @@ namespace TaxAccount.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PurchaseOrders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    OrderNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpectedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ContactId = table.Column<int>(type: "int", nullable: true),
+                    CreatedByUserId = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PurchaseOrders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrders_Contacts_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "Contacts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrders_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrders_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StockAdjustments",
                 columns: table => new
                 {
@@ -341,23 +385,66 @@ namespace TaxAccount.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PurchaseOrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    PurchaseOrderId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HsnCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Unit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    DiscountPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TaxPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    CgstPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    CgstAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    SgstPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    SgstAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    IgstPercent = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    IgstAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PurchaseOrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrderItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrderItems_PurchaseOrders_PurchaseOrderId",
+                        column: x => x.PurchaseOrderId,
+                        principalTable: "PurchaseOrders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Permissions",
                 columns: new[] { "Id", "CreatedAt", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7831), "View products", "products.view" },
-                    { 2, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7840), "Create products", "products.create" },
-                    { 3, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7845), "Edit products", "products.edit" },
-                    { 4, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7849), "Delete products", "products.delete" },
-                    { 5, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7853), "View invoices", "invoices.view" },
-                    { 6, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7857), "Create invoices", "invoices.create" },
-                    { 7, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7861), "Approve invoices", "invoices.approve" },
-                    { 8, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7865), "View reports", "reports.view" },
-                    { 9, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7869), "Manage users", "users.manage" },
-                    { 10, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7873), "Manage accounts", "accounts.manage" },
-                    { 11, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7877), "Manage contacts", "contacts.manage" },
-                    { 12, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(8150), "Manage stock adjustments", "stock.manage" }
+                    { 1, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5164), "View products", "products.view" },
+                    { 2, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5169), "Create products", "products.create" },
+                    { 3, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5173), "Edit products", "products.edit" },
+                    { 4, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5177), "Delete products", "products.delete" },
+                    { 5, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5182), "View invoices", "invoices.view" },
+                    { 6, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5186), "Create invoices", "invoices.create" },
+                    { 7, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5189), "Approve invoices", "invoices.approve" },
+                    { 8, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5193), "View reports", "reports.view" },
+                    { 9, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5197), "Manage users", "users.manage" },
+                    { 10, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5201), "Manage accounts", "accounts.manage" },
+                    { 11, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5205), "Manage contacts", "contacts.manage" },
+                    { 12, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5209), "Manage stock adjustments", "stock.manage" }
                 });
 
             migrationBuilder.InsertData(
@@ -365,10 +452,10 @@ namespace TaxAccount.Migrations
                 columns: new[] { "Id", "CreatedAt", "Description", "Name" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7073), "Full access to everything", "Owner" },
-                    { 2, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7083), "Manage operations", "Manager" },
-                    { 3, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7088), "Day to day operations", "Staff" },
-                    { 4, new DateTime(2026, 4, 30, 11, 17, 49, 216, DateTimeKind.Utc).AddTicks(7093), "View only access", "Auditor" }
+                    { 1, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4492), "Full access to everything", "Owner" },
+                    { 2, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4497), "Manage operations", "Manager" },
+                    { 3, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4503), "Day to day operations", "Staff" },
+                    { 4, new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4507), "View only access", "Auditor" }
                 });
 
             migrationBuilder.InsertData(
@@ -443,6 +530,31 @@ namespace TaxAccount.Migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PurchaseOrderItems_ProductId",
+                table: "PurchaseOrderItems",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseOrderItems_PurchaseOrderId",
+                table: "PurchaseOrderItems",
+                column: "PurchaseOrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseOrders_ContactId",
+                table: "PurchaseOrders",
+                column: "ContactId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseOrders_CreatedByUserId",
+                table: "PurchaseOrders",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseOrders_TenantId",
+                table: "PurchaseOrders",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
                 table: "RolePermissions",
                 column: "PermissionId");
@@ -492,6 +604,9 @@ namespace TaxAccount.Migrations
                 name: "InvoiceItems");
 
             migrationBuilder.DropTable(
+                name: "PurchaseOrderItems");
+
+            migrationBuilder.DropTable(
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
@@ -499,6 +614,9 @@ namespace TaxAccount.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransportDetails");
+
+            migrationBuilder.DropTable(
+                name: "PurchaseOrders");
 
             migrationBuilder.DropTable(
                 name: "Permissions");

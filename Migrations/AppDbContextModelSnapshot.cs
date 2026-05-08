@@ -274,84 +274,84 @@ namespace TaxAccount.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8790),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5164),
                             Description = "View products",
                             Name = "products.view"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8795),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5169),
                             Description = "Create products",
                             Name = "products.create"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8800),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5173),
                             Description = "Edit products",
                             Name = "products.edit"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8804),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5177),
                             Description = "Delete products",
                             Name = "products.delete"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8808),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5182),
                             Description = "View invoices",
                             Name = "invoices.view"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8812),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5186),
                             Description = "Create invoices",
                             Name = "invoices.create"
                         },
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8816),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5189),
                             Description = "Approve invoices",
                             Name = "invoices.approve"
                         },
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8821),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5193),
                             Description = "View reports",
                             Name = "reports.view"
                         },
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8825),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5197),
                             Description = "Manage users",
                             Name = "users.manage"
                         },
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8829),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5201),
                             Description = "Manage accounts",
                             Name = "accounts.manage"
                         },
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(9132),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5205),
                             Description = "Manage contacts",
                             Name = "contacts.manage"
                         },
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(9136),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(5209),
                             Description = "Manage stock adjustments",
                             Name = "stock.manage"
                         });
@@ -605,28 +605,28 @@ namespace TaxAccount.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8123),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4492),
                             Description = "Full access to everything",
                             Name = "Owner"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8129),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4497),
                             Description = "Manage operations",
                             Name = "Manager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8135),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4503),
                             Description = "Day to day operations",
                             Name = "Staff"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 5, 6, 6, 15, 8, 448, DateTimeKind.Utc).AddTicks(8140),
+                            CreatedAt = new DateTime(2026, 5, 8, 16, 25, 28, 934, DateTimeKind.Utc).AddTicks(4507),
                             Description = "View only access",
                             Name = "Auditor"
                         });
