@@ -34,9 +34,10 @@ public class AccountingController : ControllerBase
     {
         var tenantId = _tenantService.GetTenantId();
         account.TenantId = tenantId;
-        // Note: CreateAccountHeadAsync not implemented yet
-        return BadRequest("Account creation via API not yet implemented");
-        return CreatedAtAction(nameof(GetChartOfAccounts), new { id = created.Id }, created);
+        
+        // TODO: Implement CreateAccountHeadAsync in AccountingService
+        // For now, return not implemented
+        return StatusCode(501, "Account creation endpoint is under development. Please use the UI or seed data for now.");
     }
 
     [HttpGet("general-ledger")]
