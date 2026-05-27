@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TaxAccount.Data;
 using TaxAccount.DTOs.Compliance;
 using TaxAccount.Models;
+using TaxAccount.Models.Settings;
 
 namespace TaxAccount.Services;
 
@@ -42,7 +43,7 @@ public class TenantSettingService : ITenantSettingService
             settings = new TenantSetting
             {
                 TenantId = tenantId,
-                CompanyName = tenant.Name,
+                CompanyName = tenant.CompanyName,
                 Gstn = string.Empty,
                 StateCode = string.Empty,
                 Address = string.Empty,

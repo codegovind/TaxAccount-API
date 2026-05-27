@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TaxAccount.Models;
+using TaxAccount.Models.Accounting;
+using TaxAccount.Models.Compliance;
+using TaxAccount.Models.Settings;
 using TaxAccount.Services;
 
 namespace TaxAccount.Data

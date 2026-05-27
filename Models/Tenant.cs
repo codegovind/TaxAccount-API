@@ -13,5 +13,6 @@ namespace TaxAccount.Models
         // Navigation
         public ICollection<User> Users { get; set; } = new List<User>();
         public ICollection<Contact> Contacts { get; set; } = new List<Contact>();
+        public TenantSetting? Settings { get; set; }
     }
 }
