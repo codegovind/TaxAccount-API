@@ -31,16 +31,8 @@ namespace TaxAccount.Controllers
             var totalUsers = await _context.Users.CountAsync();
 
             var totalRevenue = await _context.Invoices
-                .Where(i => i.Status == InvoiceStatus.Paid && i.InvoiceType == InvoiceType.Sale)
+                .Where(i => i.InvoiceType == InvoiceType.Sale)
                 .SumAsync(i => i.TotalAmount);
-
-            var pendingInvoices = await _context.Invoices
-                .Where(i => i.InvoiceType == InvoiceType.Sale)
-                .CountAsync(i => i.Status == Models.InvoiceStatus.Sent);
-
-            var draftInvoices = await _context.Invoices
-                .Where(i => i.InvoiceType == InvoiceType.Sale)
-                .CountAsync(i => i.Status == Models.InvoiceStatus.Draft);
 
             var recentInvoices = await _context.Invoices
                 .Where(i => i.InvoiceType == InvoiceType.Sale)
@@ -53,7 +45,6 @@ namespace TaxAccount.Controllers
                     i.InvoiceNumber,
                     CustomerName = i.Contact != null ? i.Contact.Name : "Cash Sale",
                     i.TotalAmount,
-                    Status = i.Status.ToString(),
                     i.InvoiceDate
                 })
                 .ToListAsync();
@@ -64,8 +55,6 @@ namespace TaxAccount.Controllers
                 totalProducts,
                 totalUsers,
                 totalRevenue,
-                pendingInvoices,
-                draftInvoices,
                 recentInvoices
             });
         }

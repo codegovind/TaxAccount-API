@@ -30,6 +30,8 @@ namespace TaxAccount.Data
         public DbSet<StockAdjustment> StockAdjustments { get; set; }
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
+        public DbSet<PurchaseBill> PurchaseBills { get; set; }
+        public DbSet<PurchaseBillItem> PurchaseBillItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,6 +67,14 @@ namespace TaxAccount.Data
             modelBuilder.Entity<PurchaseOrderItem>()
                 .HasQueryFilter(poi => _tenantService == null ||
                     poi.TenantId == _tenantService.GetTenantId());
+
+            modelBuilder.Entity<PurchaseBill>()
+                .HasQueryFilter(pb => _tenantService == null ||
+                    pb.TenantId == _tenantService.GetTenantId());
+
+            modelBuilder.Entity<PurchaseBillItem>()
+                .HasQueryFilter(pbi => _tenantService == null ||
+                    pbi.TenantId == _tenantService.GetTenantId());
 
             // ── Precision: Product ──
             modelBuilder.Entity<Product>()
@@ -160,6 +170,43 @@ namespace TaxAccount.Data
                 .Property(i => i.IgstAmount).HasPrecision(18, 2);
             modelBuilder.Entity<PurchaseOrderItem>()
             .Property(i => i.TotalAmount).HasPrecision(18, 2);
+
+            // Precision: PurchaseBill
+            modelBuilder.Entity<PurchaseBill>()
+                .Property(pb => pb.SubTotal).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBill>()
+                .Property(pb => pb.DiscountAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBill>()
+                .Property(pb => pb.TaxAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBill>()
+                .Property(pb => pb.TotalAmount).HasPrecision(18, 2);
+
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.Quantity).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.UnitPrice).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.DiscountPercent).HasPrecision(5, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.DiscountAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.TaxPercent).HasPrecision(5, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.TaxAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.CgstPercent).HasPrecision(5, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.CgstAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.SgstPercent).HasPrecision(5, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.SgstAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.IgstPercent).HasPrecision(5, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.IgstAmount).HasPrecision(18, 2);
+            modelBuilder.Entity<PurchaseBillItem>()
+                .Property(i => i.TotalAmount).HasPrecision(18, 2);
 
             // ── RolePermission Composite Key ──
             modelBuilder.Entity<RolePermission>()
@@ -269,6 +316,37 @@ namespace TaxAccount.Data
                 .HasOne(poi => poi.Product)
                 .WithMany()
                 .HasForeignKey(poi => poi.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relationships PurchaseBill
+            modelBuilder.Entity<PurchaseBill>()
+                .HasOne(pb => pb.Contact)
+                .WithMany()
+                .HasForeignKey(pb => pb.ContactId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseBill>()
+                .HasOne(pb => pb.CreatedBy)
+                .WithMany()
+                .HasForeignKey(pb => pb.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseBill>()
+                .HasOne(pb => pb.Tenant)
+                .WithMany()
+                .HasForeignKey(pb => pb.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseBillItem>()
+                .HasOne(pbi => pbi.PurchaseBill)
+                .WithMany(pb => pb.Items)
+                .HasForeignKey(pbi => pbi.PurchaseBillId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PurchaseBillItem>()
+                .HasOne(pbi => pbi.Product)
+                .WithMany()
+                .HasForeignKey(pbi => pbi.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ── Seed: Roles ──

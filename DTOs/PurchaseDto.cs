@@ -73,7 +73,6 @@ namespace TaxAccount.DTOs
         public string VendorBillNumber { get; set; } = string.Empty;
         public DateTime BillDate { get; set; }
         public DateTime? DueDate { get; set; }
-        public string Status { get; set; } = string.Empty;
         public string PaymentMethod { get; set; } = string.Empty;
         public int? ContactId { get; set; }
         public string VendorName { get; set; } = string.Empty;

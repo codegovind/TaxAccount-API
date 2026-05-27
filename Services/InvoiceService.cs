@@ -41,6 +41,7 @@ namespace TaxAccount.Services
         public async Task<InvoiceResponseDto> GetByIdAsync(int id)
         {
             var invoice = await _context.Invoices
+                .Where(i => i.InvoiceType == InvoiceType.Sale)
                 .Include(i => i.Contact)
                 .Include(i => i.CreatedBy)
                 .Include(i => i.Items)
@@ -183,11 +184,9 @@ namespace TaxAccount.Services
                         TotalAmount = itemTotal
                     });
 
-                    // Update stock based on invoice type
+                    // Sale reduces stock
                     if (dto.InvoiceType == InvoiceType.Sale)
                         product.Stock -= itemDto.Quantity;
-                    else if (dto.InvoiceType == InvoiceType.Purchase)
-                        product.Stock += itemDto.Quantity;
 
                     subTotal += itemSubTotal;
                     totalDiscount += discountAmt;
@@ -201,7 +200,6 @@ namespace TaxAccount.Services
                     InvoiceType = dto.InvoiceType,
                     InvoiceDate = DateTime.UtcNow,
                     DueDate = dto.DueDate,
-                    Status = InvoiceStatus.Draft,
                     PaymentMethod = dto.PaymentMethod,
                     EntrySource = dto.EntrySource,
                     ContactId = contactId,
@@ -233,28 +231,6 @@ namespace TaxAccount.Services
             }
         }
 
-        public async Task<InvoiceResponseDto> UpdateStatusAsync(
-            int id, UpdateInvoiceStatusDto dto)
-        {
-            var invoice = await _context.Invoices.FindAsync(id);
-            if (invoice == null)
-                throw new NotFoundException($"Invoice {id} not found");
-
-            if (invoice.Status == InvoiceStatus.Cancelled)
-                throw new AppException("Cannot update cancelled invoice");
-
-            invoice.Status = dto.Status;
-            invoice.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Invoice {Id} status updated to {Status}",
-                id, dto.Status);
-
-            return await GetByIdAsync(id);
-        }
-
         public async Task<bool> DeleteAsync(int id)
         {
             var invoice = await _context.Invoices
@@ -264,21 +240,15 @@ namespace TaxAccount.Services
             if (invoice == null)
                 throw new NotFoundException($"Invoice {id} not found");
 
-            if (invoice.Status != InvoiceStatus.Draft)
-                throw new AppException("Only draft invoices can be deleted");
-
-            // Reverse stock changes
+            // Reverse stock changes for sales
             foreach (var item in invoice.Items)
             {
                 var product = await _context.Products
                     .FindAsync(item.ProductId);
 
-                if (product != null)
+                if (product != null && invoice.InvoiceType == InvoiceType.Sale)
                 {
-                    if (invoice.InvoiceType == InvoiceType.Sale)
-                        product.Stock += item.Quantity;
-                    else if (invoice.InvoiceType == InvoiceType.Purchase)
-                        product.Stock -= item.Quantity;
+                    product.Stock += item.Quantity;
                 }
             }
 
@@ -314,7 +284,6 @@ namespace TaxAccount.Services
                 InvoiceType = i.InvoiceType.ToString(),
                 InvoiceDate = i.InvoiceDate,
                 DueDate = i.DueDate,
-                Status = i.Status.ToString(),
                 PaymentMethod = i.PaymentMethod.ToString(),
                 EntrySource = i.EntrySource.ToString(),
                 ContactId = i.ContactId,

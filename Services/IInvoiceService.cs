@@ -7,7 +7,6 @@ namespace TaxAccount.Services
         Task<List<InvoiceResponseDto>> GetAllAsync();
         Task<InvoiceResponseDto> GetByIdAsync(int id);
         Task<InvoiceResponseDto> CreateAsync(CreateInvoiceDto dto, int createdByUserId);
-        Task<InvoiceResponseDto> UpdateStatusAsync(int id, UpdateInvoiceStatusDto dto);
         Task<bool> DeleteAsync(int id);
     }
 }

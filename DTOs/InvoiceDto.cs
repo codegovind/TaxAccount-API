@@ -28,7 +28,6 @@ namespace TaxAccount.DTOs
         public string InvoiceType { get; set; } = string.Empty;
         public DateTime InvoiceDate { get; set; }
         public DateTime DueDate { get; set; }
-        public string Status { get; set; } = string.Empty;
         public string PaymentMethod { get; set; } = string.Empty;
         public string EntrySource { get; set; } = string.Empty;
         public int? ContactId { get; set; }
@@ -41,11 +40,5 @@ namespace TaxAccount.DTOs
         public decimal TotalAmount { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<InvoiceItemResponseDto> Items { get; set; } = new();
-    }
-
-    public class UpdateInvoiceStatusDto
-    {
-        [Required]
-        public InvoiceStatus Status { get; set; }
     }
 }

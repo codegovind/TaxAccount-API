@@ -46,15 +46,6 @@ namespace TaxAccount.Controllers
                 new { id = invoice.Id }, invoice);
         }
 
-        [HttpPatch("{id}/status")]
-        [HasPermission("invoices.approve")]
-        public async Task<IActionResult> UpdateStatus(
-            int id, UpdateInvoiceStatusDto dto)
-        {
-            var invoice = await _invoiceService.UpdateStatusAsync(id, dto);
-            return Ok(invoice);
-        }
-
         [HttpDelete("{id}")]
         [HasPermission("invoices.approve")]
         public async Task<IActionResult> Delete(int id)

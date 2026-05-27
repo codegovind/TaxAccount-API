@@ -6,14 +6,6 @@ namespace TaxAccount.Models
         Purchase = 2
     }
 
-    public enum InvoiceStatus
-    {
-        Draft = 1,
-        Sent = 2,
-        Paid = 3,
-        Cancelled = 4
-    }
-
     public enum PaymentMethod
     {
         Cash = 1,
@@ -34,7 +26,6 @@ namespace TaxAccount.Models
         public int TenantId { get; set; }
         public string InvoiceNumber { get; set; } = string.Empty;
         public InvoiceType InvoiceType { get; set; } = InvoiceType.Sale;
-        public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
         public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.Credit;
         public EntrySource EntrySource { get; set; } = EntrySource.FullAccounting;
         public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;

@@ -27,13 +27,12 @@ namespace TaxAccount.Services
 
         public async Task<List<PurchaseBillResponseDto>> GetAllBillsAsync()
         {
-            var bills = await _context.Invoices
-                .Where(i => i.InvoiceType == InvoiceType.Purchase)
-                .Include(i => i.Contact)
-                .Include(i => i.CreatedBy)
-                .Include(i => i.Items)
+            var bills = await _context.PurchaseBills
+                .Include(pb => pb.Contact)
+                .Include(pb => pb.CreatedBy)
+                .Include(pb => pb.Items)
                     .ThenInclude(item => item.Product)
-                .OrderByDescending(i => i.CreatedAt)
+                .OrderByDescending(pb => pb.CreatedAt)
                 .ToListAsync();
 
             return bills.Select(MapToBillResponseDto).ToList();
@@ -41,13 +40,12 @@ namespace TaxAccount.Services
 
         public async Task<PurchaseBillResponseDto> GetBillByIdAsync(int id)
         {
-            var bill = await _context.Invoices
-                .Where(i => i.InvoiceType == InvoiceType.Purchase)
-                .Include(i => i.Contact)
-                .Include(i => i.CreatedBy)
-                .Include(i => i.Items)
+            var bill = await _context.PurchaseBills
+                .Include(pb => pb.Contact)
+                .Include(pb => pb.CreatedBy)
+                .Include(pb => pb.Items)
                     .ThenInclude(item => item.Product)
-                .FirstOrDefaultAsync(i => i.Id == id);
+                .FirstOrDefaultAsync(pb => pb.Id == id);
 
             if (bill == null)
                 throw new NotFoundException($"Purchase bill {id} not found");
@@ -86,7 +84,7 @@ namespace TaxAccount.Services
 
             var billNumber = await GenerateBillNumberAsync(tenantId);
 
-            var items = new List<InvoiceItem>();
+            var items = new List<PurchaseBillItem>();
             decimal subTotal = 0;
             decimal totalDiscount = 0;
             decimal totalTax = 0;
@@ -123,7 +121,7 @@ namespace TaxAccount.Services
 
                     var totalTaxAmt = cgst + sgst + igst;
 
-                    items.Add(new InvoiceItem
+                    items.Add(new PurchaseBillItem
                     {
                         TenantId = tenantId,
                         ProductId = itemDto.ProductId,
@@ -158,16 +156,15 @@ namespace TaxAccount.Services
                     totalTax += totalTaxAmt;
                 }
 
-                var bill = new Invoice
+                var bill = new PurchaseBill
                 {
                     TenantId = tenantId,
-                    InvoiceNumber = billNumber,
-                    InvoiceType = InvoiceType.Purchase,
-                    InvoiceDate = dto.BillDate,
+                    BillNumber = billNumber,
+                    BillDate = dto.BillDate,
                     DueDate = dto.DueDate ?? dto.BillDate.AddDays(30),
-                    Status = InvoiceStatus.Draft,
                     PaymentMethod = dto.PaymentMethod,
                     EntrySource = EntrySource.FullAccounting,
+                    VendorBillNumber = dto.VendorBillNumber,
                     ContactId = contactId,
                     CreatedByUserId = userId,
                     Notes = dto.Notes,
@@ -178,7 +175,7 @@ namespace TaxAccount.Services
                     Items = items
                 };
 
-                _context.Invoices.Add(bill);
+                _context.PurchaseBills.Add(bill);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -198,17 +195,12 @@ namespace TaxAccount.Services
 
         public async Task<bool> DeleteBillAsync(int id)
         {
-            var bill = await _context.Invoices
-                .Include(i => i.Items)
-                .FirstOrDefaultAsync(i =>
-                    i.Id == id &&
-                    i.InvoiceType == InvoiceType.Purchase);
+            var bill = await _context.PurchaseBills
+                .Include(pb => pb.Items)
+                .FirstOrDefaultAsync(pb => pb.Id == id);
 
             if (bill == null)
                 throw new NotFoundException($"Purchase bill {id} not found");
-
-            if (bill.Status != InvoiceStatus.Draft)
-                throw new AppException("Only draft bills can be deleted");
 
             // Reverse stock
             foreach (var item in bill.Items)
@@ -219,7 +211,7 @@ namespace TaxAccount.Services
                     product.Stock -= item.Quantity;
             }
 
-            _context.Invoices.Remove(bill);
+            _context.PurchaseBills.Remove(bill);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -423,12 +415,11 @@ namespace TaxAccount.Services
         private async Task<string> GenerateBillNumberAsync(int tenantId)
         {
             var year = DateTime.UtcNow.Year;
-            var count = await _context.Invoices
+            var count = await _context.PurchaseBills
                 .IgnoreQueryFilters()
-                .CountAsync(i =>
-                    i.TenantId == tenantId &&
-                    i.InvoiceType == InvoiceType.Purchase &&
-                    i.InvoiceDate.Year == year);
+                .CountAsync(pb =>
+                    pb.TenantId == tenantId &&
+                    pb.BillDate.Year == year);
 
             return $"PUR-{year}-{(count + 1):D4}";
         }
@@ -448,25 +439,25 @@ namespace TaxAccount.Services
         // ── Mappers ──
 
         private static PurchaseBillResponseDto MapToBillResponseDto(
-            Invoice i) => new()
+            PurchaseBill pb) => new()
         {
-            Id = i.Id,
-            BillNumber = i.InvoiceNumber,
-            BillDate = i.InvoiceDate,
-            DueDate = i.DueDate,
-            Status = i.Status.ToString(),
-            PaymentMethod = i.PaymentMethod.ToString(),
-            ContactId = i.ContactId,
-            VendorName = i.Contact?.Name ?? "Cash Vendor",
+            Id = pb.Id,
+            BillNumber = pb.BillNumber,
+            VendorBillNumber = pb.VendorBillNumber,
+            BillDate = pb.BillDate,
+            DueDate = pb.DueDate,
+            PaymentMethod = pb.PaymentMethod.ToString(),
+            ContactId = pb.ContactId,
+            VendorName = pb.Contact?.Name ?? "Cash Vendor",
             CreatedByName =
-                $"{i.CreatedBy.FirstName} {i.CreatedBy.LastName}",
-            Notes = i.Notes,
-            SubTotal = i.SubTotal,
-            DiscountAmount = i.DiscountAmount,
-            TaxAmount = i.TaxAmount,
-            TotalAmount = i.TotalAmount,
-            CreatedAt = i.CreatedAt,
-            Items = i.Items.Select(item => new PurchaseItemResponseDto
+                $"{pb.CreatedBy.FirstName} {pb.CreatedBy.LastName}",
+            Notes = pb.Notes,
+            SubTotal = pb.SubTotal,
+            DiscountAmount = pb.DiscountAmount,
+            TaxAmount = pb.TaxAmount,
+            TotalAmount = pb.TotalAmount,
+            CreatedAt = pb.CreatedAt,
+            Items = pb.Items.Select(item => new PurchaseItemResponseDto
             {
                 Id = item.Id,
                 ProductId = item.ProductId,
