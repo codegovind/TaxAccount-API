@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using TaxAccount.Authorization;
 using TaxAccount.DTOs;
 using TaxAccount.Services;
@@ -10,10 +11,12 @@ namespace TaxAccount.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductService productService, ILogger<ProductsController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -34,19 +37,35 @@ namespace TaxAccount.Controllers
 
         [HttpPost]
         [HasPermission("products.create")]
-        public async Task<IActionResult> Create(CreateProductDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
-            var product = await _productService.CreateAsync(dto);
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = product.Id },
-                product);
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                
+                _logger.LogWarning("Product validation failed: {Errors}", string.Join(", ", errors));
+                return BadRequest(new { message = "Validation failed", errors });
+            }
+
+            try
+            {
+                var product = await _productService.CreateAsync(dto);
+                _logger.LogInformation("Product created successfully: {ProductId} - {ProductName}", product.Id, product.Name);
+                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating product");
+                return StatusCode(500, new { message = "Error creating product", error = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         [HasPermission("products.edit")]
-        public async Task<IActionResult> Update(
-            int id, UpdateProductDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
         {
             await _productService.UpdateAsync(id, dto);
             return NoContent();
