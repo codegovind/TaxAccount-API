@@ -395,7 +395,7 @@ public class AccountingService : IAccountingService
         }
     }
 
-    public async Task<PostingResult> PostPaymentAsync(Accounting.Payment payment)
+    public async Task<PostingResult> PostPaymentAsync(Models.Accounting.Payment payment)
     {
         try
         {
@@ -498,4 +498,26 @@ public class AccountingService : IAccountingService
             return new PostingResult { Success = false, Message = ex.Message };
         }
     }
+
+    public async Task<AccountHead> CreateAccountHeadAsync(AccountHead account)
+{
+    if (account.ParentId.HasValue)
+    {
+        var parentExists = await _context.AccountHeads
+            .AnyAsync(a => a.Id == account.ParentId.Value && a.TenantId == account.TenantId);
+        
+        if (!parentExists)
+            throw new ArgumentException("Parent account not found.");
+    }
+
+    if (string.IsNullOrEmpty(account.Code))
+    {
+        var count = await _context.AccountHeads.CountAsync(a => a.TenantId == account.TenantId);
+        account.Code = $"{(int)account.Type:D2}-{count + 1:D3}";
+    }
+
+    _context.AccountHeads.Add(account);
+    await _context.SaveChangesAsync();
+    return account;
+}
 }

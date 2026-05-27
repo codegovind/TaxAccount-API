@@ -19,7 +19,8 @@ public interface IAccountingService
     
     Task<PostingResult> AutoPostSaleInvoiceAsync(Models.Invoice invoice);
     Task<PostingResult> AutoPostPurchaseBillAsync(Models.PurchaseBill bill);
-    Task<PostingResult> PostPaymentAsync(Accounting.Payment payment);
+    Task<PostingResult> PostPaymentAsync(Models.Accounting.Payment payment);
+    Task<AccountHead> CreateAccountHeadAsync(AccountHead account);
 }
 
 public class TrialBalanceDto

@@ -32,12 +32,32 @@ public class AccountingController : ControllerBase
     [HttpPost("chart-of-accounts")]
     public async Task<IActionResult> CreateAccount([FromBody] AccountHead account)
     {
-        var tenantId = _tenantService.GetTenantId();
-        account.TenantId = tenantId;
+        // var tenantId = _tenantService.GetTenantId();
+        // account.TenantId = tenantId;
         
-        // TODO: Implement CreateAccountHeadAsync in AccountingService
-        // For now, return not implemented
-        return StatusCode(501, "Account creation endpoint is under development. Please use the UI or seed data for now.");
+        // // TODO: Implement CreateAccountHeadAsync in AccountingService
+        // // For now, return not implemented
+        // return StatusCode(501, "Account creation endpoint is under development. Please use the UI or seed data for now.");
+        if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+        try
+        {
+            var tenantId = _tenantService.GetTenantId();
+            account.TenantId = tenantId;
+            
+            var created = await _accountingService.CreateAccountHeadAsync(account);
+            
+            return CreatedAtAction(nameof(GetChartOfAccounts), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error creating account", error = ex.Message });
+        }
     }
 
     [HttpGet("general-ledger")]

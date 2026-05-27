@@ -1,3 +1,4 @@
+using TaxAccount.Models.Settings;
 namespace TaxAccount.Models
 {
     public class Tenant

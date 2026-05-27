@@ -3,7 +3,7 @@ namespace TaxAccount.Models.Accounting;
 public class LedgerEntry
 {
     public int Id { get; set; }
-    public int AccountHeadId { get; set; }
+    public int? AccountHeadId { get; set; }
     public AccountHead AccountHead { get; set; } = null!;
     
     public DateTime Date { get; set; }
