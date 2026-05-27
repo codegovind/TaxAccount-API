@@ -24,7 +24,7 @@ public class AccountingController : ControllerBase
     [HttpGet("chart-of-accounts")]
     public async Task<IActionResult> GetChartOfAccounts()
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
+        var tenantId = _tenantService.GetTenantId();
         var accounts = await _accountingService.GetChartOfAccountsAsync(tenantId);
         return Ok(accounts);
     }
@@ -32,9 +32,10 @@ public class AccountingController : ControllerBase
     [HttpPost("chart-of-accounts")]
     public async Task<IActionResult> CreateAccount([FromBody] AccountHead account)
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
+        var tenantId = _tenantService.GetTenantId();
         account.TenantId = tenantId;
-        var created = await _accountingService.CreateAccountHeadAsync(account);
+        // Note: CreateAccountHeadAsync not implemented yet
+        return BadRequest("Account creation via API not yet implemented");
         return CreatedAtAction(nameof(GetChartOfAccounts), new { id = created.Id }, created);
     }
 
@@ -44,7 +45,7 @@ public class AccountingController : ControllerBase
         [FromQuery] DateTime? fromDate = null,
         [FromQuery] DateTime? toDate = null)
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
+        var tenantId = _tenantService.GetTenantId();
         var entries = await _accountingService.GetGeneralLedgerAsync(tenantId, accountHeadId, fromDate, toDate);
         return Ok(entries);
     }
@@ -54,7 +55,7 @@ public class AccountingController : ControllerBase
         [FromQuery] DateTime fromDate,
         [FromQuery] DateTime toDate)
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
+        var tenantId = _tenantService.GetTenantId();
         var result = await _accountingService.GetTrialBalanceAsync(tenantId, fromDate, toDate);
         return Ok(result);
     }
@@ -62,7 +63,7 @@ public class AccountingController : ControllerBase
     [HttpGet("balance-sheet")]
     public async Task<IActionResult> GetBalanceSheet([FromQuery] DateTime asOfDate)
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
+        var tenantId = _tenantService.GetTenantId();
         var result = await _accountingService.GetBalanceSheetAsync(tenantId, asOfDate);
         return Ok(result);
     }
@@ -72,7 +73,7 @@ public class AccountingController : ControllerBase
         [FromQuery] DateTime fromDate,
         [FromQuery] DateTime toDate)
     {
-        var tenantId = _tenantService.GetCurrentTenantId();
+        var tenantId = _tenantService.GetTenantId();
         var result = await _accountingService.GetProfitLossAsync(tenantId, fromDate, toDate);
         return Ok(result);
     }
