@@ -56,6 +56,12 @@ try
     builder.Services.AddScoped<DataSeeder>();
     builder.Services.AddScoped<IPurchaseService, PurchaseService>();
     builder.Services.AddScoped<IContactService, ContactService>();
+    
+    // Accounting & Compliance Services
+    builder.Services.AddScoped<IAccountingService, AccountingService>();
+    builder.Services.AddScoped<IEWayBillService, EWayBillService>();
+    builder.Services.AddScoped<ITenantSettingService, TenantSettingService>();
+    
     // Database
      builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
     {

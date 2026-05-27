@@ -32,6 +32,12 @@ namespace TaxAccount.Data
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
         public DbSet<PurchaseBill> PurchaseBills { get; set; }
         public DbSet<PurchaseBillItem> PurchaseBillItems { get; set; }
+        
+        // Accounting & Compliance
+        public DbSet<AccountHead> AccountHeads { get; set; }
+        public DbSet<LedgerEntry> LedgerEntries { get; set; }
+        public DbSet<EWayBill> EWayBills { get; set; }
+        public DbSet<TenantSetting> TenantSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -348,6 +354,65 @@ namespace TaxAccount.Data
                 .WithMany()
                 .HasForeignKey(pbi => pbi.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Accounting & Compliance Configuration
+            
+            // AccountHead relationships and constraints
+            modelBuilder.Entity<AccountHead>()
+                .HasIndex(h => new { h.Code, h.TenantId })
+                .IsUnique();
+            
+            modelBuilder.Entity<AccountHead>()
+                .HasOne(h => h.Parent)
+                .WithMany(h => h.Children)
+                .HasForeignKey(h => h.ParentId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<AccountHead>()
+                .HasQueryFilter(h => _tenantService == null || 
+                    h.TenantId == _tenantService.GetTenantId());
+            
+            // LedgerEntry relationships
+            modelBuilder.Entity<LedgerEntry>()
+                .HasOne(e => e.AccountHead)
+                .WithMany(a => a.LedgerEntries)
+                .HasForeignKey(e => e.AccountHeadId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<LedgerEntry>()
+                .HasOne(e => e.CreatedBy)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<LedgerEntry>()
+                .HasQueryFilter(e => _tenantService == null || 
+                    e.TenantId == _tenantService.GetTenantId());
+            
+            // EWayBill relationships
+            modelBuilder.Entity<EWayBill>()
+                .HasQueryFilter(e => _tenantService == null || 
+                    e.TenantId == _tenantService.GetTenantId());
+            
+            // TenantSetting relationships
+            modelBuilder.Entity<TenantSetting>()
+                .HasIndex(t => t.TenantId)
+                .IsUnique();
+            
+            modelBuilder.Entity<TenantSetting>()
+                .HasOne(t => t.Tenant)
+                .WithMany()
+                .HasForeignKey(t => t.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Precision for accounting entities
+            modelBuilder.Entity<AccountHead>()
+                .Property(h => h.OpeningBalance).HasPrecision(18, 2);
+            
+            modelBuilder.Entity<LedgerEntry>()
+                .Property(e => e.Debit).HasPrecision(18, 2);
+            modelBuilder.Entity<LedgerEntry>()
+                .Property(e => e.Credit).HasPrecision(18, 2);
 
             // ── Seed: Roles ──
             modelBuilder.Entity<Role>().HasData(
