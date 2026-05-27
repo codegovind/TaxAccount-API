@@ -17,9 +17,9 @@ public interface IAccountingService
     Task<FinancialStatementDto> GetBalanceSheetAsync(int tenantId, DateTime asOfDate);
     Task<FinancialStatementDto> GetProfitLossAsync(int tenantId, DateTime fromDate, DateTime toDate);
     
-    Task<PostingResult> AutoPostSaleInvoiceAsync(Models.SaleInvoice invoice);
+    Task<PostingResult> AutoPostSaleInvoiceAsync(Models.Invoice invoice);
     Task<PostingResult> AutoPostPurchaseBillAsync(Models.PurchaseBill bill);
-    Task<PostingResult> PostPaymentAsync(Models.Payment payment);
+    Task<PostingResult> PostPaymentAsync(Accounting.Payment payment);
 }
 
 public class TrialBalanceDto

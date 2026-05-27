@@ -220,7 +220,7 @@ public class AccountingService : IAccountingService
         return result;
     }
 
-    public async Task<PostingResult> AutoPostSaleInvoiceAsync(Models.SaleInvoice invoice)
+    public async Task<PostingResult> AutoPostSaleInvoiceAsync(Models.Invoice invoice)
     {
         try
         {
@@ -395,7 +395,7 @@ public class AccountingService : IAccountingService
         }
     }
 
-    public async Task<PostingResult> PostPaymentAsync(Models.Payment payment)
+    public async Task<PostingResult> PostPaymentAsync(Accounting.Payment payment)
     {
         try
         {
