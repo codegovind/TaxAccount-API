@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaxAccount.DTOs.Accounting;
 using TaxAccount.Services;
 
 namespace TaxAccount.Controllers;
@@ -11,80 +10,60 @@ namespace TaxAccount.Controllers;
 public class AccountingController : ControllerBase
 {
     private readonly IAccountingService _accountingService;
+    private readonly ILogger<AccountingController> _logger;
 
-    public AccountingController(IAccountingService accountingService)
+    public AccountingController(IAccountingService accountingService, ILogger<AccountingController> logger)
     {
         _accountingService = accountingService;
+        _logger = logger;
     }
 
-    /// <summary>
-    /// Get Chart of Accounts as a hierarchical tree
-    /// </summary>
     [HttpGet("chart-of-accounts")]
-    public async Task<ActionResult<List<AccountHeadDto>>> GetChartOfAccounts()
+    public async Task<IActionResult> GetChartOfAccounts()
     {
         var accounts = await _accountingService.GetChartOfAccountsAsync();
         return Ok(accounts);
     }
 
-    /// <summary>
-    /// Create a new Account Head
-    /// </summary>
-    [HttpPost("accounts")]
-    public async Task<ActionResult<AccountHeadDto>> CreateAccount([FromBody] CreateAccountHeadDto dto)
+    [HttpPost("chart-of-accounts")]
+    public async Task<IActionResult> CreateAccount([FromBody] Models.Accounting.AccountHead account)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var account = await _accountingService.CreateAccountHeadAsync(dto);
-        return CreatedAtAction(nameof(GetChartOfAccounts), new { }, account);
+        var created = await _accountingService.CreateAccountHeadAsync(account);
+        return CreatedAtAction(nameof(GetChartOfAccounts), new { id = created.Id }, created);
     }
 
-    /// <summary>
-    /// Post a manual journal entry to the General Ledger
-    /// </summary>
-    [HttpPost("ledger")]
-    public async Task<ActionResult<LedgerEntryDto>> PostTransaction([FromBody] LedgerEntryDto dto)
+    [HttpGet("general-ledger")]
+    public async Task<IActionResult> GetGeneralLedger(
+        [FromQuery] int? accountHeadId = null,
+        [FromQuery] DateTime? fromDate = null,
+        [FromQuery] DateTime? toDate = null)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var entry = await _accountingService.PostTransactionAsync(dto);
-        return Ok(entry);
+        var entries = await _accountingService.GetGeneralLedgerAsync(accountHeadId, fromDate, toDate);
+        return Ok(entries);
     }
 
-    /// <summary>
-    /// Get Trial Balance for a date range
-    /// </summary>
     [HttpGet("trial-balance")]
-    public async Task<ActionResult<List<TrialBalanceDto>>> GetTrialBalance(
-        [FromQuery] DateTime fromDate, 
+    public async Task<IActionResult> GetTrialBalance(
+        [FromQuery] DateTime fromDate,
         [FromQuery] DateTime toDate)
     {
-        var trialBalance = await _accountingService.GetTrialBalanceAsync(fromDate, toDate);
-        return Ok(trialBalance);
-    }
-
-    /// <summary>
-    /// Get Profit & Loss Statement
-    /// </summary>
-    [HttpGet("profit-loss")]
-    public async Task<ActionResult<List<FinancialStatementDto>>> GetProfitLoss(
-        [FromQuery] DateTime fromDate, 
-        [FromQuery] DateTime toDate)
-    {
-        var result = await _accountingService.GetProfitLossAsync(fromDate, toDate);
+        var result = await _accountingService.GetTrialBalanceAsync(fromDate, toDate);
         return Ok(result);
     }
 
-    /// <summary>
-    /// Get Balance Sheet as of a specific date
-    /// </summary>
     [HttpGet("balance-sheet")]
-    public async Task<ActionResult<List<FinancialStatementDto>>> GetBalanceSheet(
-        [FromQuery] DateTime asOfDate)
+    public async Task<IActionResult> GetBalanceSheet([FromQuery] DateTime asOfDate)
     {
         var result = await _accountingService.GetBalanceSheetAsync(asOfDate);
+        return Ok(result);
+    }
+
+    [HttpGet("profit-loss")]
+    public async Task<IActionResult> GetProfitLoss(
+        [FromQuery] DateTime fromDate,
+        [FromQuery] DateTime toDate)
+    {
+        var result = await _accountingService.GetProfitLossAsync(fromDate, toDate);
         return Ok(result);
     }
 }

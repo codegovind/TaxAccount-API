@@ -39,6 +39,7 @@ namespace TaxAccount.Data
         // Accounting & Compliance
         public DbSet<AccountHead> AccountHeads { get; set; }
         public DbSet<LedgerEntry> LedgerEntries { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<EWayBill> EWayBills { get; set; }
         public DbSet<TenantSetting> TenantSettings { get; set; }
 
@@ -416,6 +417,38 @@ namespace TaxAccount.Data
                 .Property(e => e.Debit).HasPrecision(18, 2);
             modelBuilder.Entity<LedgerEntry>()
                 .Property(e => e.Credit).HasPrecision(18, 2);
+            
+            // Payment relationships and precision
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Contact)
+                .WithMany()
+                .HasForeignKey(p => p.ContactId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Invoice)
+                .WithMany()
+                .HasForeignKey(p => p.InvoiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.PurchaseBill)
+                .WithMany()
+                .HasForeignKey(p => p.PurchaseBillId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.CreatedBy)
+                .WithMany()
+                .HasForeignKey(p => p.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Payment>()
+                .HasQueryFilter(p => _tenantService == null || 
+                    p.TenantId == _tenantService.GetTenantId());
+            
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount).HasPrecision(18, 2);
 
             // ── Seed: Roles ──
             modelBuilder.Entity<Role>().HasData(
