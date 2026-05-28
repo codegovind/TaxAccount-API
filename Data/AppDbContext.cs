@@ -39,6 +39,7 @@ namespace TaxAccount.Data
         // Accounting & Compliance
         public DbSet<AccountHead> AccountHeads { get; set; }
         public DbSet<LedgerEntry> LedgerEntries { get; set; }
+        public DbSet<VoucherEntry> VoucherEntries { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<EWayBill> EWayBills { get; set; }
         public DbSet<TenantSetting> TenantSettings { get; set; }
