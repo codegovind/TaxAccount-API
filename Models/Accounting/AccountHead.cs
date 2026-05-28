@@ -29,3 +29,14 @@ public class AccountHead
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
+
+public class AccountGroup
+{
+    public int Id { get; set; }
+    public int TenantId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string PrimaryGroup { get; set; } = string.Empty;
+    
+    // Navigation
+    public ICollection<AccountHead> AccountHeads { get; set; } = new List<AccountHead>();
+}

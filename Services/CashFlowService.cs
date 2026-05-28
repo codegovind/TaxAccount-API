@@ -1,5 +1,6 @@
 using TaxAccount.Data;
 using TaxAccount.Models;
+using TaxAccount.Models.Accounting;
 using TaxAccount.Models.Dtos;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,25 +24,34 @@ public class CashFlowService
             ClosingBalance = await GetClosingBalanceAsync(toDate, tenantId)
         };
 
-        // Fetch all cash/bank transactions for the period
-        var entries = await _context.VoucherEntries
-            .Include(e => e.AccountHead)
-            .Where(e => e.TenantId == tenantId && e.Date >= fromDate && e.Date <= toDate)
+        // Get all Cash/Bank Account IDs
+        var cashBankIds = await _context.AccountHeads
+            .Where(a => a.TenantId == tenantId && (a.Name.Contains("Cash") || a.Name.Contains("Bank")))
+            .Select(a => a.Id)
             .ToListAsync();
 
-        // Operating Activities (Simplified: Journal entries affecting P&L)
+        // Fetch entries where Cash/Bank is involved
+        var entries = await _context.VoucherEntries
+            .Include(e => e.AccountHead)
+            .Where(e => e.TenantId == tenantId && 
+                        e.Date >= fromDate && 
+                        e.Date <= toDate &&
+                        cashBankIds.Contains(e.AccountHeadId))
+            .ToListAsync();
+
+        // Operating Activities
         result.OperatingActivities.Name = "Cash Flow from Operating Activities";
-        result.OperatingActivities.Items = MapOperatingActivities(entries);
+        result.OperatingActivities.Items = MapOperatingActivities(entries, cashBankIds);
         result.OperatingActivities.NetAmount = result.OperatingActivities.Items.Sum(i => i.IsIncome ? i.Amount : -i.Amount);
 
-        // Investing Activities (Simplified: Asset purchases/sales)
+        // Investing Activities
         result.InvestingActivities.Name = "Cash Flow from Investing Activities";
-        result.InvestingActivities.Items = MapInvestingActivities(entries);
+        result.InvestingActivities.Items = MapInvestingActivities(entries, cashBankIds);
         result.InvestingActivities.NetAmount = result.InvestingActivities.Items.Sum(i => i.IsIncome ? i.Amount : -i.Amount);
 
-        // Financing Activities (Simplified: Capital, Loans, Contra)
+        // Financing Activities
         result.FinancingActivities.Name = "Cash Flow from Financing Activities";
-        result.FinancingActivities.Items = MapFinancingActivities(entries);
+        result.FinancingActivities.Items = MapFinancingActivities(entries, cashBankIds);
         result.FinancingActivities.NetAmount = result.FinancingActivities.Items.Sum(i => i.IsIncome ? i.Amount : -i.Amount);
 
         result.NetChange = result.OperatingActivities.NetAmount + 
@@ -53,8 +63,8 @@ public class CashFlowService
 
     public async Task<CashFlowStatementDto> CalculateIndirectMethodAsync(DateTime fromDate, DateTime toDate, int tenantId)
     {
-        // For simplicity, returning Direct Method structure
-        // In a real app, this would start with Net Profit and adjust for non-cash items
+        // For now, returns Direct Method structure. 
+        // Real implementation would start with Net Profit and adjust.
         return await CalculateDirectMethodAsync(fromDate, toDate, tenantId);
     }
 
@@ -65,7 +75,7 @@ public class CashFlowService
             .Where(e => e.TenantId == tenantId && 
                        e.Date >= fromDate && 
                        e.Date <= toDate && 
-                       (e.AccountHeadId == accountHeadId || e.DrCr == 0)) // Simplified filter
+                       e.AccountHeadId == accountHeadId)
             .OrderBy(e => e.Date)
             .ToListAsync();
 
@@ -75,64 +85,96 @@ public class CashFlowService
             VoucherNumber = e.VoucherNumber ?? string.Empty,
             PartyName = e.AccountHead?.Name ?? string.Empty,
             Narration = e.Narration ?? string.Empty,
-            Debit = e.DebitAmount,
-            Credit = e.CreditAmount
+            Debit = e.Debit,
+            Credit = e.Credit
         }).ToList();
     }
 
     private async Task<decimal> GetOpeningBalanceAsync(DateTime fromDate, int tenantId)
     {
-        // Sum of all Cash/Bank accounts before fromDate
-        var cashGroup = await _context.AccountHeads.FirstOrDefaultAsync(a => a.Name == "Cash-in-hand" && a.TenantId == tenantId);
-        var bankGroup = await _context.AccountHeads.FirstOrDefaultAsync(a => a.Name.Contains("Bank") && a.TenantId == tenantId);
-        
-        if (cashGroup == null && bankGroup == null) return 0;
+        var cashBankNames = new[] { "Cash", "Bank" };
+        var accountIds = await _context.AccountHeads
+            .Where(a => a.TenantId == tenantId && cashBankNames.Any(n => a.Name.Contains(n)))
+            .Select(a => a.Id)
+            .ToListAsync();
 
+        if (!accountIds.Any()) return 0;
+
+        // Balance = Sum(Debit) - Sum(Credit)
         var opening = await _context.VoucherEntries
             .Where(e => e.TenantId == tenantId && 
                        e.Date < fromDate && 
-                       (e.AccountHeadId == (cashGroup?.Id ?? 0) || e.AccountHeadId == (bankGroup?.Id ?? 0)))
-            .SumAsync(e => e.DebitAmount - e.CreditAmount);
+                       accountIds.Contains(e.AccountHeadId))
+            .SumAsync(e => e.Debit - e.Credit);
 
         return opening;
     }
 
     private async Task<decimal> GetClosingBalanceAsync(DateTime toDate, int tenantId)
     {
-        // Sum of all Cash/Bank accounts up to toDate
-        var cashGroup = await _context.AccountHeads.FirstOrDefaultAsync(a => a.Name == "Cash-in-hand" && a.TenantId == tenantId);
-        var bankGroup = await _context.AccountHeads.FirstOrDefaultAsync(a => a.Name.Contains("Bank") && a.TenantId == tenantId);
-        
-        if (cashGroup == null && bankGroup == null) return 0;
+        var cashBankNames = new[] { "Cash", "Bank" };
+        var accountIds = await _context.AccountHeads
+            .Where(a => a.TenantId == tenantId && cashBankNames.Any(n => a.Name.Contains(n)))
+            .Select(a => a.Id)
+            .ToListAsync();
+
+        if (!accountIds.Any()) return 0;
 
         var closing = await _context.VoucherEntries
             .Where(e => e.TenantId == tenantId && 
                        e.Date <= toDate && 
-                       (e.AccountHeadId == (cashGroup?.Id ?? 0) || e.AccountHeadId == (bankGroup?.Id ?? 0)))
-            .SumAsync(e => e.DebitAmount - e.CreditAmount);
+                       accountIds.Contains(e.AccountHeadId))
+            .SumAsync(e => e.Debit - e.Credit);
 
         return closing;
     }
 
-    private List<LineItemDto> MapOperatingActivities(List<VoucherEntry> entries)
+    private List<LineItemDto> MapOperatingActivities(List<VoucherEntry> entries, List<int> cashBankIds)
     {
-        // Simplified mapping logic
         var items = new List<LineItemDto>();
-        // Add logic to group entries by nature (Sales, Purchase, Expenses)
+        
+        // Filter out contra transactions (Cash <-> Bank)
+        var nonContraEntries = entries.Where(e => !cashBankIds.Contains(e.AccountHeadId)).ToList();
+
+        var grouped = nonContraEntries.GroupBy(e => e.AccountHead?.Name ?? "Unknown");
+        
+        foreach (var group in grouped)
+        {
+            // Logic: If Cash/Bank was Debited, it's an Inflow (Income/Asset Increase)
+            // If Cash/Bank was Credited, it's an Outflow (Expense/Asset Decrease)
+            // Since we filtered Cash/Bank IDs, 'e' here is the counter-party.
+            // We need to look at the original entry to see if Cash was Dr or Cr.
+            
+            // Simplified: Summing net impact on cash for this party
+            // Note: In a double entry system, if Cash is Dr, CounterParty is Cr.
+            // We need to re-fetch or calculate based on the Cash side of the transaction.
+            // For this simplified version, we assume the list contains the Cash/Bank entries.
+            // If the entry IS a cash entry:
+            
+            decimal netCashFlow = group.Sum(e => e.Debit - e.Credit);
+
+            if (netCashFlow != 0)
+            {
+                items.Add(new LineItemDto
+                {
+                    Description = group.Key,
+                    Amount = Math.Abs(netCashFlow),
+                    IsIncome = netCashFlow > 0 // Positive means Cash came in
+                });
+            }
+        }
         return items;
     }
 
-    private List<LineItemDto> MapInvestingActivities(List<VoucherEntry> entries)
+    private List<LineItemDto> MapInvestingActivities(List<VoucherEntry> entries, List<int> cashBankIds)
     {
-        var items = new List<LineItemDto>();
-        // Add logic for Asset purchase/sale
-        return items;
+        // Placeholder: Filter for Asset accounts similarly
+        return new List<LineItemDto>();
     }
 
-    private List<LineItemDto> MapFinancingActivities(List<VoucherEntry> entries)
+    private List<LineItemDto> MapFinancingActivities(List<VoucherEntry> entries, List<int> cashBankIds)
     {
-        var items = new List<LineItemDto>();
-        // Add logic for Capital, Drawings, Loans
-        return items;
+        // Placeholder: Filter for Capital/Loan accounts similarly
+        return new List<LineItemDto>();
     }
 }

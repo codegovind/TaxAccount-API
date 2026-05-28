@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaxAccount.Models;
 using TaxAccount.Models.Accounting;
+using TaxAccount.Models.Inventory;
 using TaxAccount.Models.Compliance;
 using TaxAccount.Models.Settings;
 using TaxAccount.Services;
@@ -38,11 +39,17 @@ namespace TaxAccount.Data
         
         // Accounting & Compliance
         public DbSet<AccountHead> AccountHeads { get; set; }
+        public DbSet<AccountGroup> AccountGroups { get; set; }
         public DbSet<LedgerEntry> LedgerEntries { get; set; }
         public DbSet<VoucherEntry> VoucherEntries { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<EWayBill> EWayBills { get; set; }
         public DbSet<TenantSetting> TenantSettings { get; set; }
+
+        // Inventory
+        public DbSet<Godown> Godowns { get; set; } // Add this
+        public DbSet<Item> Items { get; set; }     // Add this
+        public DbSet<StockBatch> StockBatches { get; set; } // Add this
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -86,6 +93,14 @@ namespace TaxAccount.Data
             modelBuilder.Entity<PurchaseBillItem>()
                 .HasQueryFilter(pbi => _tenantService == null ||
                     pbi.TenantId == _tenantService.GetTenantId());
+
+            // Configure Multi-tenant Global Filters
+            modelBuilder.Entity<AccountHead>().HasQueryFilter(pbi => _tenantService == null || pbi.TenantId == _tenantService.GetTenantId());
+            modelBuilder.Entity<AccountGroup>().HasQueryFilter(pbi => _tenantService == null || pbi.TenantId == _tenantService.GetTenantId());
+            modelBuilder.Entity<VoucherEntry>().HasQueryFilter(pbi => _tenantService == null || pbi.TenantId == _tenantService.GetTenantId());
+            modelBuilder.Entity<Godown>().HasQueryFilter(pbi => _tenantService == null || pbi.TenantId == _tenantService.GetTenantId());
+            modelBuilder.Entity<Item>().HasQueryFilter(pbi => _tenantService == null || pbi.TenantId == _tenantService.GetTenantId());
+            modelBuilder.Entity<StockBatch>().HasQueryFilter(pbi => _tenantService == null || pbi.TenantId == _tenantService.GetTenantId());
 
             // ── Precision: Product ──
             modelBuilder.Entity<Product>()
@@ -219,6 +234,19 @@ namespace TaxAccount.Data
             modelBuilder.Entity<PurchaseBillItem>()
                 .Property(i => i.TotalAmount).HasPrecision(18, 2);
 
+            // Fix Decimal Precision Warnings
+            modelBuilder.Entity<VoucherEntry>()
+                .Property(e => e.Debit).HasPrecision(18, 2);
+            modelBuilder.Entity<VoucherEntry>()
+                .Property(e => e.Credit).HasPrecision(18, 2);
+
+            modelBuilder.Entity<Item>()
+                .Property(i => i.Rate).HasPrecision(18, 2);
+
+            modelBuilder.Entity<StockBatch>()
+                .Property(sb => sb.Quantity).HasPrecision(18, 2);
+            modelBuilder.Entity<StockBatch>()
+                .Property(sb => sb.Rate).HasPrecision(18, 2);
             // ── RolePermission Composite Key ──
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
@@ -245,6 +273,18 @@ namespace TaxAccount.Data
                 .HasForeignKey(u => u.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ── FIX: Prevent Cascade Delete Cycles for Inventory ──
+            modelBuilder.Entity<StockBatch>()
+                .HasOne(sb => sb.Item)
+                .WithMany(i => i.StockBatches) // Ensure 'Batches' exists in Item model
+                .HasForeignKey(sb => sb.ItemId)
+                .OnDelete(DeleteBehavior.Restrict); // Critical Fix
+
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.Godown)
+                .WithMany(g => g.Items)
+                .HasForeignKey(i => i.GodownId)
+                .OnDelete(DeleteBehavior.Restrict); // Safety for Godown too
             // ── User → Role ──
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
@@ -406,10 +446,15 @@ namespace TaxAccount.Data
             
             modelBuilder.Entity<TenantSetting>()
                 .HasOne(t => t.Tenant)
-                .WithMany()
-                .HasForeignKey(t => t.TenantId)
+                .WithOne(t => t.Settings)
+                .HasForeignKey<TenantSetting>(t => t.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
             
+            // Explicitly define the property type to prevent shadow state
+            modelBuilder.Entity<TenantSetting>()
+                .Property(t => t.TenantId)
+                .IsRequired();
+
             // Precision for accounting entities
             modelBuilder.Entity<AccountHead>()
                 .Property(h => h.OpeningBalance).HasPrecision(18, 2);
@@ -450,6 +495,12 @@ namespace TaxAccount.Data
             
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount).HasPrecision(18, 2);
+
+            // Define Relationships if not using conventions
+            modelBuilder.Entity<Item>()
+              .HasOne(i => i.Godown)
+              .WithMany(g => g.Items)
+              .HasForeignKey(i => i.GodownId);
 
             // ── Seed: Roles ──
             modelBuilder.Entity<Role>().HasData(

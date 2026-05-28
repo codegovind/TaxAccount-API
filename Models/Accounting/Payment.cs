@@ -1,15 +1,15 @@
 namespace TaxAccount.Models.Accounting;
 
-public enum VoucherType
-{
-    Sales = 1,
-    Purchase = 2,
-    Payment = 3,
-    Receipt = 4,
-    Journal = 5,
-    CreditNote = 6,
-    DebitNote = 7
-}
+// public enum VoucherType
+// {
+//     Sales = 1,
+//     Purchase = 2,
+//     Payment = 3,
+//     Receipt = 4,
+//     Journal = 5,
+//     CreditNote = 6,
+//     DebitNote = 7
+// }
 
 public class Payment
 {

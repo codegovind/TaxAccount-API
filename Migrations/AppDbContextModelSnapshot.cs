@@ -22,6 +22,298 @@ namespace TaxAccount.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("TaxAccount.Models.Accounting.AccountGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PrimaryGroup")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountGroups");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.AccountHead", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AccountGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("OpeningBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountGroupId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("Code", "TenantId")
+                        .IsUnique();
+
+                    b.ToTable("AccountHeads");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.LedgerEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AccountHeadId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Credit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Debit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Narration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VoucherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VoucherNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VoucherType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountHeadId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("LedgerEntries");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ContactId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Narration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PurchaseBillId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReferenceDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReferenceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VoucherNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VoucherType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("PurchaseBillId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.VoucherEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountHeadId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Credit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Debit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Narration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RelatedAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VoucherNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VoucherType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountHeadId");
+
+                    b.ToTable("VoucherEntries");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Compliance.EWayBill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("EWayBillNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("GeneratedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Irn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JsonData")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ValidUntil")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EWayBills");
+                });
+
             modelBuilder.Entity("TaxAccount.Models.Contact", b =>
                 {
                     b.Property<int>("Id")
@@ -79,6 +371,107 @@ namespace TaxAccount.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.Godown", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Godowns");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.Item", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GodownId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HsnCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Rate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GodownId");
+
+                    b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.StockBatch", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BatchNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GodownId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("MfgDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Rate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GodownId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("StockBatches");
                 });
 
             modelBuilder.Entity("TaxAccount.Models.Invoice", b =>
@@ -271,84 +664,84 @@ namespace TaxAccount.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3242),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5680),
                             Description = "View products",
                             Name = "products.view"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3252),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5686),
                             Description = "Create products",
                             Name = "products.create"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3257),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5689),
                             Description = "Edit products",
                             Name = "products.edit"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3262),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5693),
                             Description = "Delete products",
                             Name = "products.delete"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3267),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5697),
                             Description = "View invoices",
                             Name = "invoices.view"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3272),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5701),
                             Description = "Create invoices",
                             Name = "invoices.create"
                         },
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3277),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5722),
                             Description = "Approve invoices",
                             Name = "invoices.approve"
                         },
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3281),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5727),
                             Description = "View reports",
                             Name = "reports.view"
                         },
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3286),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5731),
                             Description = "Manage users",
                             Name = "users.manage"
                         },
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3291),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5735),
                             Description = "Manage accounts",
                             Name = "accounts.manage"
                         },
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3296),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5739),
                             Description = "Manage contacts",
                             Name = "contacts.manage"
                         },
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(3300),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(5742),
                             Description = "Manage stock adjustments",
                             Name = "stock.manage"
                         });
@@ -766,28 +1159,28 @@ namespace TaxAccount.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(2099),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(4790),
                             Description = "Full access to everything",
                             Name = "Owner"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(2231),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(4888),
                             Description = "Manage operations",
                             Name = "Manager"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(2238),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(4894),
                             Description = "Day to day operations",
                             Name = "Staff"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2026, 5, 27, 10, 33, 30, 21, DateTimeKind.Utc).AddTicks(2243),
+                            CreatedAt = new DateTime(2026, 5, 28, 18, 36, 29, 576, DateTimeKind.Utc).AddTicks(4898),
                             Description = "View only access",
                             Name = "Auditor"
                         });
@@ -953,6 +1346,98 @@ namespace TaxAccount.Migrations
                             RoleId = 4,
                             PermissionId = 8
                         });
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Settings.TenantSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EWayBillApiUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EWayBillPassword")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EWayBillUsername")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FinancialYearStart")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FinancialYearStartDay")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Gstn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsEWayBillEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsGstEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsInventoryEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMultiCurrencyEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Pancard")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PinCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique();
+
+                    b.ToTable("TenantSettings");
                 });
 
             modelBuilder.Entity("TaxAccount.Models.StockAdjustment", b =>
@@ -1124,6 +1609,85 @@ namespace TaxAccount.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TaxAccount.Models.Accounting.AccountHead", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Accounting.AccountGroup", null)
+                        .WithMany("AccountHeads")
+                        .HasForeignKey("AccountGroupId");
+
+                    b.HasOne("TaxAccount.Models.Accounting.AccountHead", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.LedgerEntry", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Accounting.AccountHead", "AccountHead")
+                        .WithMany("LedgerEntries")
+                        .HasForeignKey("AccountHeadId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TaxAccount.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaxAccount.Models.Accounting.Payment", null)
+                        .WithMany("LedgerEntries")
+                        .HasForeignKey("PaymentId");
+
+                    b.Navigation("AccountHead");
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.Payment", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TaxAccount.Models.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TaxAccount.Models.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TaxAccount.Models.PurchaseBill", "PurchaseBill")
+                        .WithMany()
+                        .HasForeignKey("PurchaseBillId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("PurchaseBill");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.VoucherEntry", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Accounting.AccountHead", "AccountHead")
+                        .WithMany()
+                        .HasForeignKey("AccountHeadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AccountHead");
+                });
+
             modelBuilder.Entity("TaxAccount.Models.Contact", b =>
                 {
                     b.HasOne("TaxAccount.Models.Tenant", "Tenant")
@@ -1133,6 +1697,36 @@ namespace TaxAccount.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.Item", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Inventory.Godown", "Godown")
+                        .WithMany("Items")
+                        .HasForeignKey("GodownId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Godown");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.StockBatch", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Inventory.Godown", "Godown")
+                        .WithMany("StockBatches")
+                        .HasForeignKey("GodownId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaxAccount.Models.Inventory.Item", "Item")
+                        .WithMany("StockBatches")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Godown");
+
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("TaxAccount.Models.Invoice", b =>
@@ -1300,6 +1894,17 @@ namespace TaxAccount.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("TaxAccount.Models.Settings.TenantSetting", b =>
+                {
+                    b.HasOne("TaxAccount.Models.Tenant", "Tenant")
+                        .WithOne("Settings")
+                        .HasForeignKey("TaxAccount.Models.Settings.TenantSetting", "TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("TaxAccount.Models.StockAdjustment", b =>
                 {
                     b.HasOne("TaxAccount.Models.User", "AdjustedBy")
@@ -1365,6 +1970,35 @@ namespace TaxAccount.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("TaxAccount.Models.Accounting.AccountGroup", b =>
+                {
+                    b.Navigation("AccountHeads");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.AccountHead", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("LedgerEntries");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Accounting.Payment", b =>
+                {
+                    b.Navigation("LedgerEntries");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.Godown", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("StockBatches");
+                });
+
+            modelBuilder.Entity("TaxAccount.Models.Inventory.Item", b =>
+                {
+                    b.Navigation("StockBatches");
+                });
+
             modelBuilder.Entity("TaxAccount.Models.Invoice", b =>
                 {
                     b.Navigation("Items");
@@ -1402,6 +2036,8 @@ namespace TaxAccount.Migrations
             modelBuilder.Entity("TaxAccount.Models.Tenant", b =>
                 {
                     b.Navigation("Contacts");
+
+                    b.Navigation("Settings");
 
                     b.Navigation("Users");
                 });
